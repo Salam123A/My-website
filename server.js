@@ -9,7 +9,7 @@ const { body, validationResult } = require('express-validator');
 const validator = require('validator');
 const http = require('http');
 const socketIo = require('socket.io');
-const mongoSanitize = require('express-mongo-sanitize'); // Add this line
+const mongoSanitize = require('express-mongo-sanitize');
 
 const app = express();
 const server = http.createServer(app);
@@ -18,7 +18,7 @@ const PORT = process.env.PORT || 3000;
 const DATA_FILE = path.join(__dirname, process.env.DATA_FILE || 'posts.json');
 
 // Middleware
-app.use(mongoSanitize()); // Add this middleware
+app.use(mongoSanitize());
 app.use(express.json());
 app.use(expressSanitizer());
 app.use(cors());
@@ -29,6 +29,9 @@ const limiter = rateLimit({
   max: 100, // limit each IP to 100 requests per windowMs
 });
 app.use(limiter);
+
+// Serve static files from /public
+app.use(express.static(path.join(__dirname, 'public')));
 
 // Ensure posts.json exists
 function ensureFileExists() {
@@ -251,9 +254,6 @@ app.delete('/posts/:id', (req, res) => {
 
   res.json({ message: 'Post deleted' });
 });
-
-// Serve static files (e.g., CSS, JS, images)
-app.use(express.static('public'));
 
 // Socket.IO connection handler
 io.on('connection', (socket) => {
