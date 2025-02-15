@@ -7,15 +7,11 @@ const expressSanitizer = require('express-sanitizer');
 const { body, validationResult } = require('express-validator');
 const validator = require('validator');
 const http = require('http');
-const https = require('https');
 const socketIo = require('socket.io');
 const mongoSanitize = require('express-mongo-sanitize');
 
 const app = express();
-const server = https.createServer({
-  key: fs.readFileSync(path.join(__dirname, 'certs', 'key.pem')),
-  cert: fs.readFileSync(path.join(__dirname, 'certs', 'cert.pem'))
-}, app);
+const server = http.createServer(app);
 const io = socketIo(server);
 const PORT = process.env.PORT || 3000;
 const DATA_FILE = path.join(__dirname, process.env.DATA_FILE || 'posts.json');
@@ -274,7 +270,7 @@ io.on('connection', (socket) => {
 
 // Start the server
 server.listen(PORT, '0.0.0.0', () => {
-  console.log(`✅ Server running on https://localhost:${PORT}`);
+  console.log(`✅ Server running on http://localhost:${PORT}`);
 });
 
 // Test route to check mongo-sanitize
