@@ -272,7 +272,7 @@ async function renderNewPost(newPost) {
             addPostToContainer(newPost, randomPostsContainer);
         }
     } else {
-        console.warn('Post not found in posts.json:', newPost.id);
+        console.warn('Post not found in database:', newPost.id);
     }
 }
 
@@ -303,6 +303,7 @@ async function addPostToContainer(post, container) {
     }, 1000);
 }
 
+
 // Initialize the page
 renderPosts();
 
@@ -321,7 +322,6 @@ function sharePost(postId) {
     window.open(twitterUrl, '_blank');
 }
 
-// Function to show a post in fullscreen mode
 async function showPostInFullscreen(postId) {
     try {
         const response = await fetch(`/posts/${postId}`);
@@ -331,7 +331,7 @@ async function showPostInFullscreen(postId) {
             const splitContainer = document.getElementById('splitContainer');
             const header = document.getElementById('header');
             const leftSide = document.getElementById('leftSide');
-			history.pushState(null, '', `/#post-${postId}`);
+            history.pushState(null, '', `/#post-${postId}`);
             splitContainer.classList.remove('split');
             splitContainer.classList.add('full-width');
             header.classList.remove('split');
@@ -563,6 +563,41 @@ function attachEventListeners() {
             showPostInFullscreen(postId);
         });
     });
+}
+
+
+async function likePost(postId) {
+    await fetch(`/posts/${postId}/like`, { method: 'POST' });
+}
+
+async function submitComment(postId, columnId, username, commentContent) {
+    try {
+        const response = await fetch(`/posts/${postId}/comments`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ username, comment: commentContent })
+        });
+
+        if (response.ok) {
+            const updatedPost = await response.json();
+            updatePostInAllColumns(updatedPost);
+            updatePostInSearchMode(updatedPost);
+            updatePostInFullscreen(updatedPost);
+        } else {
+            alert("Error adding comment");
+            console.error('Error adding comment:', response.status); // Debugging statement
+        }
+    } catch (error) {
+        alert("Error adding comment");
+        console.error('Error adding comment:', error); // Debugging statement
+    }
+}
+
+async function likeComment(postId, commentDate) {
+    await fetch(`/posts/${postId}/comments/date/${commentDate}/like`, { method: 'POST' });
+    fetchComments(postId);
 }
 
 async function showPostInFullscreen(postId) {
