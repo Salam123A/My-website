@@ -62,6 +62,7 @@ function lazyLoadPosts(posts, container) {
 
     loadMorePosts();
 }
+
 function renderPostColumn(posts, container) {
     const isSplitMode = document.getElementById('splitContainer').classList.contains('split');
 
@@ -187,6 +188,7 @@ function renderPostColumn(posts, container) {
     script.charset = "utf-8";
     document.head.appendChild(script);
 }
+
 function updatePostInAllColumns(updatedPost) {
     ['newestPosts', 'mostLikedPosts', 'randomPosts'].forEach(containerId => {
         const postElement = document.getElementById(containerId)?.querySelector(`#post-${sanitizeInput(updatedPost.id.toString())}`);
