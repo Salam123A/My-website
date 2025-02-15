@@ -25,7 +25,6 @@ function renderPosts() {
         })
         .catch(error => console.error('Error fetching posts:', error));
 }
-
 function lazyLoadPosts(posts, container) {
     let loadedPosts = 0;
     const postsPerLoad = 2;
