@@ -1,6 +1,5 @@
 require('dotenv').config();
 const express = require('express');
-const fs = require('fs');
 const path = require('path');
 const cors = require('cors');
 const rateLimit = require('express-rate-limit');
@@ -10,12 +9,16 @@ const validator = require('validator');
 const http = require('http');
 const socketIo = require('socket.io');
 const mongoSanitize = require('express-mongo-sanitize');
+const { MongoClient } = require('mongodb');
 
 const app = express();
 const server = http.createServer(app);
 const io = socketIo(server);
 const PORT = process.env.PORT || 3000;
-const DATA_FILE = path.join(__dirname, process.env.DATA_FILE || 'posts.json');
+
+// MongoDB connection
+const uri = process.env.MONGODB_URI; // Add your MongoDB connection string to Vercel environment variables
+const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
 
 // Middleware
 app.use(mongoSanitize());
@@ -33,30 +36,28 @@ app.use(limiter);
 // Serve static files from /public
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Ensure posts.json exists
-function ensureFileExists() {
-  if (!fs.existsSync(DATA_FILE)) {
-    fs.writeFileSync(DATA_FILE, JSON.stringify([]));
+// Read posts from MongoDB
+async function readPosts() {
+  try {
+    await client.connect();
+    const database = client.db('my-app'); // Replace 'my-app' with your database name
+    const collection = database.collection('posts'); // Replace 'posts' with your collection name
+    return await collection.find({}).toArray();
+  } finally {
+    await client.close();
   }
 }
 
-// Read posts from file
-function readPosts() {
-  ensureFileExists();
+// Write posts to MongoDB
+async function writePosts(newPosts) {
   try {
-    return JSON.parse(fs.readFileSync(DATA_FILE, 'utf8'));
-  } catch (error) {
-    console.error('Error reading posts:', error);
-    return [];
-  }
-}
-
-// Write posts to file
-function writePosts(posts) {
-  try {
-    fs.writeFileSync(DATA_FILE, JSON.stringify(posts, null, 2));
-  } catch (error) {
-    console.error('Error writing posts:', error);
+    await client.connect();
+    const database = client.db('my-app'); // Replace 'my-app' with your database name
+    const collection = database.collection('posts'); // Replace 'posts' with your collection name
+    await collection.deleteMany({}); // Clear the collection
+    await collection.insertMany(newPosts); // Insert new posts
+  } finally {
+    await client.close();
   }
 }
 
@@ -72,17 +73,18 @@ app.get('/pepeexpand/:id', (req, res) => {
 
 // 📌 API ROUTES
 // Get all posts
-app.get('/posts', (req, res) => {
+app.get('/posts', async (req, res) => {
   console.log('GET /posts');
-  res.json(readPosts());
+  const posts = await readPosts();
+  res.json(posts);
 });
 
 // Get a single post by ID
-app.get('/posts/:id', (req, res) => {
+app.get('/posts/:id', async (req, res) => {
   const postId = parseInt(req.params.id, 10);
   console.log(`GET /posts/${postId}`);
 
-  const posts = readPosts();
+  const posts = await readPosts();
   const post = posts.find((p) => p.id === postId);
 
   if (!post) {
@@ -100,7 +102,7 @@ app.post(
     body('title').trim().escape().notEmpty().withMessage('Title is required'),
     body('content').trim().notEmpty().withMessage('Content is required'),
   ],
-  (req, res) => {
+  async (req, res) => {
     console.log('POST /posts');
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -114,19 +116,17 @@ app.post(
     title = req.sanitize(title);
     content = req.sanitize(content);
 
-    const posts = readPosts();
+    const posts = await readPosts();
     const newPost = { id: Date.now(), title, content, likes: 0, date: new Date().toISOString(), comments: [] };
-    posts.push(newPost);
-    writePosts(posts);
+    await writePosts([...posts, newPost]);
 
     res.status(201).json(newPost);
-
     io.emit('updatePost', newPost); // Broadcast the new post to all clients
   }
 );
 
 // Like a post
-app.post('/posts/:id/like', (req, res) => {
+app.post('/posts/:id/like', async (req, res) => {
   const postId = parseInt(req.params.id, 10);
   console.log(`POST /posts/${postId}/like`);
 
@@ -136,7 +136,7 @@ app.post('/posts/:id/like', (req, res) => {
     return res.status(400).json({ error: 'Invalid post ID' });
   }
 
-  const posts = readPosts();
+  const posts = await readPosts();
   const post = posts.find((p) => p.id === postId);
 
   if (!post) {
@@ -145,7 +145,7 @@ app.post('/posts/:id/like', (req, res) => {
   }
 
   post.likes += 1;
-  writePosts(posts);
+  await writePosts(posts);
 
   io.emit('updatePost', post); // Broadcast the updated post to all clients
 
@@ -159,7 +159,7 @@ app.post(
     body('username').trim().notEmpty().withMessage('Username is required'),
     body('comment').trim().notEmpty().withMessage('Comment is required'),
   ],
-  (req, res) => {
+  async (req, res) => {
     const postId = parseInt(req.params.id, 10);
     console.log(`POST /posts/${postId}/comments`);
 
@@ -177,7 +177,7 @@ app.post(
       return res.status(400).json({ error: 'Invalid post ID' });
     }
 
-    const posts = readPosts();
+    const posts = await readPosts();
     const post = posts.find((p) => p.id === postId);
 
     if (!post) {
@@ -187,7 +187,7 @@ app.post(
 
     const newComment = { id: Date.now(), username, comment, date: new Date().toISOString(), likes: 0, postId: postId };
     post.comments.push(newComment);
-    writePosts(posts);
+    await writePosts(posts);
 
     io.emit('updatePost', post); // Broadcast the updated post with new comment to all clients
 
@@ -196,7 +196,7 @@ app.post(
 );
 
 // Like a comment
-app.post('/posts/:postId/comments/date/:commentDate/like', (req, res) => {
+app.post('/posts/:postId/comments/date/:commentDate/like', async (req, res) => {
   const postId = parseInt(req.params.postId, 10);
   const commentDate = req.params.commentDate;
   console.log(`POST /posts/${postId}/comments/date/${commentDate}/like`);
@@ -208,7 +208,7 @@ app.post('/posts/:postId/comments/date/:commentDate/like', (req, res) => {
     return res.status(400).json({ error: 'Invalid post ID or comment date' });
   }
 
-  const posts = readPosts();
+  const posts = await readPosts();
   const post = posts.find((p) => p.id === postId);
 
   if (!post) {
@@ -223,7 +223,7 @@ app.post('/posts/:postId/comments/date/:commentDate/like', (req, res) => {
   }
 
   comment.likes += 1;
-  writePosts(posts);
+  await writePosts(posts);
 
   io.emit('updatePost', post); // Broadcast the updated post with the liked comment to all clients
 
@@ -231,7 +231,7 @@ app.post('/posts/:postId/comments/date/:commentDate/like', (req, res) => {
 });
 
 // Delete a post
-app.delete('/posts/:id', (req, res) => {
+app.delete('/posts/:id', async (req, res) => {
   const postId = parseInt(req.params.id, 10);
   console.log(`DELETE /posts/${postId}`);
 
@@ -241,7 +241,7 @@ app.delete('/posts/:id', (req, res) => {
     return res.status(400).json({ error: 'Invalid post ID' });
   }
 
-  const posts = readPosts();
+  const posts = await readPosts();
   const updatedPosts = posts.filter((post) => post.id !== postId);
 
   if (posts.length === updatedPosts.length) {
@@ -249,7 +249,7 @@ app.delete('/posts/:id', (req, res) => {
     return res.status(404).json({ error: 'Post not found' });
   }
 
-  writePosts(updatedPosts);
+  await writePosts(updatedPosts);
   io.emit('deletePost', postId); // Broadcast the deleted post ID to all clients
 
   res.json({ message: 'Post deleted' });
