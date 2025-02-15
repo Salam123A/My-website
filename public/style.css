@@ -1,0 +1,558 @@
+/* Full-screen layout */
+html, body {
+
+
+    overflow: auto; /* Enable main scrollbar */
+	
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background: url('pepe-bg.jpg') no-repeat center center fixed;
+    background-size: cover;
+    color: white;
+    text-align: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.container {
+    width: 100%;
+    min-height: 100vh; /* Ensure container extends to the bottom */
+    padding: 20px;
+    background: rgba(0, 0, 0, 0.8);
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+}
+
+header {
+    margin-bottom: 20px;
+}
+
+h1 {
+    font-size: 2.5rem;
+    margin-bottom: 10px;
+}
+
+p {
+    margin-bottom: 20px;
+}
+
+header.split { 
+    flex-direction: row; 
+    justify-content: space-around; 
+}
+
+#postForm, #searchForm {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: #1e1e1e;
+    padding: 15px;
+    border-radius: 5px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+}
+
+#postForm input[type="text"], #postForm button, #searchForm input[type="text"], #searchForm button {
+    padding: 10px;
+    font-size: 16px;
+    border: 1px solid #444444;
+    border-radius: 3px;
+    background-color: #2e2e2e;
+    color: #ffffff;
+}
+
+#postForm input[type="text"], #searchForm input[type="text"] {
+    flex: 1;
+}
+
+#postForm input[type="text"]::placeholder, #searchForm input[type="text"]::placeholder {
+    color: #bbbbbb;
+}
+
+#postForm button, #searchForm button {
+    background-color: #007BFF;
+    color: white;
+    border: none;
+    cursor: pointer;
+}
+
+#postForm button:hover, #searchForm button:hover {
+    background-color: #0056b3;
+}
+
+#toggleButton {
+    margin-top: 10px;
+    padding: 10px 20px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+#toggleButton:hover {
+    background-color: #45a049;
+}
+
+.split-container {
+    display: flex;
+    flex: 1;
+    gap: 10px;
+    overflow: hidden; /* Ensure overall container does not scroll */
+}
+
+.full-width .left-side {
+    display: none;
+}
+
+.full-width .right-side {
+    flex: 1;
+}
+
+.left-side, .right-side {
+    background: #2e2e2e;
+    padding: 20px;
+    border-radius: 10px;
+    flex: 1;
+}
+
+.left-side {
+    overflow-y: auto; /* Ensure the left-side has its own scrollbar */
+}
+
+.columns {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 21px;
+    height: auto; /* Ensure the columns grow with content */
+    overflow: hidden; /* Prevent scrolling on the columns container */
+}
+
+.column {
+    background: rgba(255, 255, 255, 0.1);
+    padding: 15px;
+    border-radius: 10px;
+    overflow-y: auto; /* Ensure each column has its own scrollbar */
+    max-height: calc(100vh - 40px); /* Adjust to ensure it fits within the viewport */
+    transition: transform 0.3s ease, box-shadow 0.3s ease; /* Smooth transition for the transform and box-shadow */
+    position: relative;
+}
+
+.column h2 {
+    position: sticky;
+    top: 0;
+    background: rgba(255, 255, 255, 0.1);
+    padding: 10px;
+    margin: -15px -15px 15px -15px;
+    border-radius: 10px 10px 0 0;
+}
+
+.column:hover {
+    transform: scale(1.05); /* Smooth and moderate scale effect */
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.5); /* Add shadow to give a lift effect */
+    z-index: 10; /* Bring the hovered column to the front */
+    position: relative; /* Ensure the z-index works correctly */
+    transform-origin: center; /* Center the transform origin to prevent moving up */
+}
+
+.post {
+    background: #333;
+    padding: 15px;
+    margin: 10px 0;
+    border-radius: 10px;
+    text-align: left;
+}
+
+.post-title {
+    font-size: 1.2rem;
+    margin-bottom: 50px; /* Increase margin to create more space between title and post content */
+    text-align: center; /* Center-align the title within posts */
+}
+
+.like-btn, .reply-btn, .share-btn {
+    background: none;
+    border: none;
+    color: #4CAF50;
+    cursor: pointer;
+    font-size: 1.5rem; /* Increase font size for buttons */
+    margin-right: 10px;
+}
+
+.like-btn:hover, .reply-btn:hover, .share-btn:hover {
+    color: #45a049; /* Darker green on hover */
+}
+
+input[type="text"] {
+    width: 80%; /* Adjust width */
+    padding: 10px;
+    margin: 10px 0;
+    border-radius: 5px;
+    border: none;
+    background: #555;
+    color: white;
+}
+
+button, .share-btn {
+    padding: 10px 20px;
+    border-radius: 5px;
+    border: none;
+    background: #4CAF50;
+    color: white;
+    cursor: pointer;
+}
+
+button:hover {
+    background: rgba(255, 255, 255, 0.48);
+}
+
+.post-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.post-date, .post-likes {
+    margin: 0;
+}
+
+.text-above-embed {
+    margin-bottom: 16px;
+    display: block;
+}
+
+.post-actions {
+    margin-top: 5px;
+    display: flex;
+    justify-content: start;
+    gap: 10px;
+}
+
+.comment-separator, .comment-end-separator {
+    border: none;
+    height: 2px;
+    background-color: #ccc;
+    margin: 10px 0;
+}
+
+.comment {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.comment-meta {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    width: 100%;
+}
+
+.comment-username {
+    margin-right: 10px;
+    font-weight: bold;
+}
+
+.comment-content {
+    flex-grow: 1;
+    text-align: left;
+}
+
+.post-username {
+    margin-right: 10px;
+    font-weight: bold;
+}
+
+.post-content, .comment-content {
+    white-space: pre-wrap;
+    word-break: break-word;
+}
+
+.post-separator {
+    margin: 20px 0;
+}
+
+.post-title, .comment-username {
+    font-size: 1.5em;
+    margin-bottom: 10px;
+}
+
+.post-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.comments {
+    margin-top: 20px;
+}
+
+.comment-like-btn {
+    background: none;
+    border: none;
+    color: #007bff;
+    cursor: pointer;
+}
+
+.comment-like-btn:hover {
+    text-decoration: underline;
+}
+
+.load-more-btn {
+    display: block;
+    margin: 20px auto;
+    padding: 10px 20px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    cursor: pointer;
+}
+
+.load-more-btn:hover {
+    background-color: #0056b3;
+}
+
+.post-text {
+    flex-grow: 1;
+    text-align: center;
+}
+
+.post-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 10px;
+}
+
+iframe {
+    border: none;
+    border-radius: 47px;
+    margin-top: 10px;
+    transition: transform 0.3s ease;
+    width: 100%;
+}
+
+blockquote {
+    display: block;
+    border-width: 1px 0;
+    border-style: transition;
+    padding: 1.7em 30px;
+    position: relative;
+    border-radius: 5px;
+    margin: 20px 0;
+    background: rgba(0, 0, 0, 0.8);
+}
+
+/* Styling for the scrollbars */
+.left-side, .column {
+    scrollbar-width: thin;
+    scrollbar-color: #4CAF50 #2e2e2e;
+}
+
+.left-side::-webkit-scrollbar, .column::-webkit-scrollbar {
+    width: 8px;
+}
+
+.left-side::-webkit-scrollbar-track, .column::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.3);
+}
+
+.left-side::-webkit-scrollbar-thumb, .column::-webkit-scrollbar-thumb {
+    background: #4CAF50;
+    border-radius: 10px;
+}
+
+.left-side::-webkit-scrollbar-thumb:hover, .column::-webkit-scrollbar-thumb:hover {
+    background: #45a049;
+}
+
+/* Animations */
+@keyframes shake {
+    0% { transform: translate(1px, 1px) rotate(0deg); }
+    10% { transform: translate(-1px, -2px) rotate(-1deg); }
+    20% { transform: translate(-3px, 0px) rotate(1deg); }
+    30% { transform: translate(3px, 2px) rotate(0deg); }
+    40% { transform: translate(1px, -1px) rotate(1deg); }
+    50% { transform: translate(-1px, 2px) rotate(-1deg); }
+    60% { transform: translate(-3px, 1px) rotate(0deg); }
+    70% { transform: translate(3px, 1px) rotate(-1deg); }
+    80% { transform: translate(-1px, -1px) rotate(1deg); }
+    90% { transform: translate(1px, 2px) rotate(0deg); }
+    100% { transform: translate(1px, -2px) rotate(-1deg); }
+}
+
+@keyframes glow {
+    0% { box-shadow: 0 0 5px red; }
+    20% { box-shadow: 0 0 20px orange; }
+    40% { box-shadow: 0 0 30px yellow; }
+    60% { box-shadow: 0 0 20px green; }
+    80% { box-shadow: 0 0 10px blue; }
+    100% { box-shadow: 0 0 5px violet; }
+}
+
+header.split { 
+    flex-direction: row; 
+    justify-content: space-around; 
+}
+
+#searchForm {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 15px;
+    border-radius: 5px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+}
+
+/* General styles */
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+	zoom: 88%;
+}
+
+.container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+/* Add these styles to the existing CSS */
+
+/* Default styles for comments */
+.comment-content {
+    word-wrap: break-word;
+}
+
+/* Styles for split mode */
+.split .comment-content {
+    max-width: 120px; /* Ensure comments do not exceed a max width */
+}
+
+header {
+    width: 100%;
+    text-align: center;
+}
+
+/* Split container styles */
+.split-container {
+    display: flex;
+    width: 100%;
+    transition: all 0.3s ease-in-out;
+}
+
+.post {
+    margin-bottom: 10px;
+    padding: 10px;
+    border-radius: 5px;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+}
+
+.post-separator {
+    border: none;
+    border-top: 1px solid #ddd;
+    margin: 10px 0;
+}
+
+.post-title {
+    margin: 0;
+    font-size: 1.2em;
+}
+
+.post-content {
+    margin: 10px 0;
+}
+
+.post-footer {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.9em;
+}
+
+.post-actions {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 10px;
+}
+
+/* Add these styles for the share button in split mode */
+.split .share-btn {
+    font-size: 0.8rem; /* Make the share button tiny */
+    padding: 2px 4px; /* Adjust padding for a smaller button */
+}
+
+.comment-separator,
+.comment-end-separator {
+    border: none;
+    border-top: 1px solid #ddd;
+    margin: 10px 0;
+}
+
+.comments {
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.load-more-btn {
+    color: white;
+    border: none;
+    padding: 10px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.load-more-btn:hover {
+    background-color: #555;
+}
+
+/* Shake and glow effect */
+.shake-glow {
+    animation: shake 0.4s, glow 0.4s;
+}header {
+    margin-bottom: 20px;
+    width: 100%;
+    text-align: center;
+    padding: 20px 0; /* Add padding to ensure the header is fully visible */
+    background: rgba(0, 0, 0, 0.8);
+    border-radius: 10px;
+}.fullscreen-btn {
+    background: none;
+    border: none;
+    color: #4CAF50;
+    cursor: pointer;
+    font-size: 1.2rem; /* Increase font size for buttons */
+    margin-right: 10px;
+    background-color: #0056bF;
+    color: white;
+    padding: 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+
+    top: 10px;
+    right: 10px;
+}
+
+.fullscreen-btn:hover {
+    background-color: #0056b3;
+}
+.fullscreen-post {
+    float: right; /* Align to right */
+    border: 2px solid #2e2e2e; /* Add border for better design */
+    padding: 20px;
+    margin: 10px;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.fullscreen-post .post-separator {
+    border-top: 1px solid #007BFF; /* Add border color for better design */
+}

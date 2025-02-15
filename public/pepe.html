@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+	<meta name="csrf-token" content="{{csrfToken}}">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MEGA PEPE</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header id="header">
+            <form id="postForm">
+                <input type="text" id="title" placeholder="Title">
+                <input type="text" id="content" placeholder="Content">
+                <button type="submit">Post</button>
+            </form>
+
+            <form id="searchForm">
+                <input type="text" id="searchInput" placeholder="Search posts...">
+                <button id="searchButton">Search</button>
+            </form>
+            <h1>MEGA PEPE</h1>
+        </header>
+
+        <button id="toggleButton"><i class="fas fa-window-minimize"></i><i class="fas fa-window-restore"></i></button>
+
+        <div class="split-container" id="splitContainer">
+            <div class="left-side" id="leftSide">
+                <h2>CONTENTCONTENTCONTENTCONTENTCONTENTCONTENTCONTENT<BR>CACACAHERE</h2>
+            </div>
+            <div class="right-side" id="rightSide">
+                <div class="columns" id="postsContainer">
+                    <div class="column">
+                        <h2>Newest Posts</h2>
+                        <div id="newestPosts"></div>
+                    </div>
+                    <div class="column">
+                        <h2>Most Liked Posts</h2>
+                        <div id="mostLikedPosts"></div>
+                    </div>
+                    <div class="column">
+                        <h2>Random Posts</h2>
+                        <div id="randomPosts"></div>
+                    </div>
+                </div>
+                <div id="searchResults" style="display: none;">
+                    <h2>Search Results</h2>
+                    <div id="searchResultsContainer"></div>
+                </div>
+            </div>
+        </div>
+
+        <div id="fullscreenPostContainer" style="display: none;">
+            <div id="fullscreenPostContent"></div>
+        </div>
+    </div>
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="utils.js"></script>
+    <script src="comments.js"></script>
+    <script src="fetch.js"></script>
+	
+    <script src="renderPostColumn.js"></script>
+    <script src="renderPosts.js"></script>
+    <script src="postActions.js"></script>
+    <script src="search.js"></script>
+    <script src="main.js"></script>
+    <script>
+        async function generateToken() {
+            const response = await fetch('/generate-token', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ username: 'predefinedUser' })
+            });
+            const data = await response.json();
+            localStorage.setItem('token', data.token);
+            loadPosts(); // Load posts after obtaining the token
+        }
+
+        async function loadPosts() {
+            try {
+                const token = localStorage.getItem('token'); // Get the stored JWT token
+                const response = await fetch('/posts', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                const posts = await response.json();
+                const newestPostsContainer = document.getElementById('newestPosts');
+                const mostLikedPostsContainer = document.getElementById('mostLikedPosts');
+                const randomPostsContainer = document.getElementById('randomPosts');
+
+                // Clear existing posts
+                newestPostsContainer.innerHTML = '';
+                mostLikedPostsContainer.innerHTML = '';
+                randomPostsContainer.innerHTML = '';
+
+                // Render posts (you can customize this as needed)
+                posts.forEach(post => {
+                    const postElement = document.createElement('div');
+                    postElement.innerHTML = `<h3>${post.title}</h3><p>${post.content}</p>`;
+                    newestPostsContainer.appendChild(postElement);
+                });
+            } catch (error) {
+                console.error('Error loading posts:', error);
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            generateToken(); // Generate the token when the page loads
+        });
+    </script>
+</body>
+</html>

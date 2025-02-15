@@ -1,0 +1,31 @@
+{
+  "name": "pepe-server",
+  "version": "1.0.0",
+  "description": "A server for handling posts with Express and Socket.IO",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "nodemon server.js"
+  },
+  "author": "Salam123421",
+  "license": "MIT",
+  "dependencies": {
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.5",
+    "csurf": "^1.10.0",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "express-mongo-sanitize": "^2.2.0",
+    "express-rate-limit": "^7.5.0",
+    "express-sanitizer": "^1.0.6",
+    "express-validator": "^7.2.1",
+    "fs": "^0.0.1-security",
+    "http": "^0.0.1-security",
+    "jsonwebtoken": "^9.0.2",
+    "morgan": "^1.10.0",
+    "path": "^0.12.7",
+    "socket.io": "^4.8.1",
+    "validator": "^13.12.0",
+    "xss-clean": "^0.1.4"
+  }
+}

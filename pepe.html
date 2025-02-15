@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MEGA PEPE</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>MEGA PEPE</h1>
+        <p>Spend 100 PePe tokens to post your meme!</p>
+        <form id="postForm">
+            <input type="text" id="title" placeholder="Title">
+            <input type="text" id="content" placeholder="Content">
+            <button type="submit">Post</button>
+        </form>
+
+        <div class="columns">
+            <div class="column">
+                <h2>Newest Posts</h2>
+                <div id="newestPosts"></div>
+            </div>
+            <div class="column">
+                <h2>Most Liked Posts</h2>
+                <div id="mostLikedPosts"></div>
+            </div>
+            <div class="column">
+                <h2>Random Posts</h2>
+                <div id="randomPosts"></div>
+            </div>
+        </div>
+    </div>
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="utils.js"></script>
+    <script src="comments.js"></script>
+    <script src="posts.js"></script>
+	 <script src="/fetchcsrf.js"></script>
+    <script src="main.js"></script>
+    <script src="showCommentForm.js"></script> <!-- Include the showCommentForm.js file -->
+    <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+    <script async src="https://www.tiktok.com/embed.js"></script>
+</body>
+</html>
