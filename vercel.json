@@ -2,17 +2,17 @@
   "version": 2,
   "builds": [
     {
-      "src": "server.js",  // Your main server file
+      "src": "server.js", 
       "use": "@vercel/node"
     }
   ],
   "routes": [
     {
-      "src": "/public/(.*)",  // Serve static files from /public
+      "src": "/public/(.*)",
       "dest": "/public/$1"
     },
     {
-      "src": "/(.*)",  // All other routes go to server.js
+      "src": "/(.*)",  
       "dest": "server.js"
     }
   ]
