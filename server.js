@@ -1,3 +1,4 @@
+require('dotenv').config();
 const express = require('express');
 const fs = require('fs');
 const path = require('path');
@@ -8,7 +9,7 @@ const { body, validationResult } = require('express-validator');
 const validator = require('validator');
 const http = require('http');
 const socketIo = require('socket.io');
-const mongoSanitize = require('express-mongo-sanitize');
+const mongoSanitize = require('express-mongo-sanitize'); // Add this line
 
 const app = express();
 const server = http.createServer(app);
@@ -17,20 +18,14 @@ const PORT = process.env.PORT || 3000;
 const DATA_FILE = path.join(__dirname, process.env.DATA_FILE || 'posts.json');
 
 // Middleware
-app.use(mongoSanitize());
+app.use(mongoSanitize()); // Add this middleware
 app.use(express.json());
 app.use(expressSanitizer());
 app.use(cors());
 
-// Disable X-Powered-By header
-app.disable('x-powered-by');
-
-// Trust the first proxy in the chain (Cloudflare)
-app.set('trust proxy', 1);
-
 // Rate limiting to prevent DDoS attacks
 const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
+  windowMs: 5 * 60 * 1000, // 15 minutes
   max: 100, // limit each IP to 100 requests per windowMs
 });
 app.use(limiter);
