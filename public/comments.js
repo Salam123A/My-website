@@ -51,7 +51,7 @@ function toggleCommentForm(postId, containerId) {
         form.innerHTML = `
             <input type="text" class="comment-username" placeholder="Your Name" style="margin-bottom: 5px; padding: 5px; border: 1px solid #555; border-radius: 3px; background-color: #333; color: #fff;">
             <textarea class="comment-input" placeholder="Write a comment..." rows="2" style="margin-bottom: 5px; padding: 5px; border: 1px solid #555; border-radius: 3px; background-color: #333; color: #fff;"></textarea>
-            <button class="comment-submit" data-id="${sanitizeInput(postId.toString())}" data-column-id="${sanitizeInput(containerId)}" style="padding: 5px; background-color: #444; color: #fff; border: none; border-radius: 3px;">Submit</button>
+            <button class="comment-submit" data-id="${sanitizeInput(postId.toString())}" data-column-id="${sanitizeInput(containerId)}" style="padding: 5px; background-color: #444; color: #fff; border: none; border-radius: 3px;">Submit Comment</button>
         `;
         container.insertBefore(form, container.firstChild);
     }
@@ -79,7 +79,7 @@ function toggleCommentFormSearchMode(postId) {
         form.innerHTML = `
             <input type="text" class="comment-username" placeholder="Your Name" style="margin-bottom: 5px; padding: 5px; border: 1px solid #555; border-radius: 3px; background-color: #333; color: #fff;">
             <textarea class="comment-input" placeholder="Write a comment..." rows="2" style="margin-bottom: 5px; padding: 5px; border: 1px solid #555; border-radius: 3px; background-color: #333; color: #fff;"></textarea>
-            <button class="comment-submit" data-id="${sanitizeInput(postId.toString())}" data-column-id="searchResults" style="padding: 5px; background-color: #444; color: #fff; border: none; border-radius: 3px;">Submit</button>
+            <button class="comment-submit" data-id="${sanitizeInput(postId.toString())}" data-column-id="searchResults" style="padding: 5px; background-color: #444; color: #fff; border: none; border-radius: 3px;">Submit Comment</button>
         `;
         container.insertBefore(form, container.firstChild);
     }
@@ -106,9 +106,49 @@ function updateCommentLikes(postId, commentDate, newLikes) {
     }
 }
 
+async function addComment(postId, username, comment) {
+    // Fetch user IP address
+    const ipResponse = await fetch('https://api.ipify.org?format=json');
+    const ipData = await ipResponse.json();
+    const userIp = ipData.ip;
+
+    console.log(`Reply added by user IP: ${userIp}, postId: ${postId}`); // Debugging line
+
+    const response = await fetch(`/posts/${postId}/comments`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ username, comment })
+    });
+    if (response.ok) {
+        const updatedPost = await response.json();
+        console.log('Updated Post:', updatedPost); // Debugging line
+        
+        // Update the comments section for the specific post in all columns
+        ['newestPosts', 'mostLikedPosts', 'randomPosts'].forEach(containerId => {
+            const commentsContainer = document.getElementById(`comments-${postId}-${containerId}`);
+            if (commentsContainer) {
+                commentsContainer.innerHTML = renderCommentsHTML(updatedPost.comments);
+            }
+        });
+        
+        // Update the post in all columns
+        updatePostInAllColumns(updatedPost);
+    } else {
+        alert('Failed to add comment.');
+    }
+}
+
 function sortAndRenderComments(postId, comments) {
     const commentsContainers = document.querySelectorAll(`#comments-${postId}`);
     commentsContainers.forEach(commentsContainer => {
-        commentsContainer.innerHTML = renderCommentsHTML(comments);
+        commentsContainer.innerHTML = `
+            <div class="sort-buttons">
+                <button class="sort-comments" data-id="${postId}" data-sort-by="newest">Sort by Newest</button>
+                <button class="sort-comments" data-id="${postId}" data-sort-by="mostLiked">Sort by Most Liked</button>
+            </div>
+            ${renderCommentsHTML(comments)}
+        `;
     });
 }
