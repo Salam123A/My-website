@@ -82,7 +82,7 @@ function convertLinksToEmbeds(content) {
         }
 
         // Check if the line contains an image link
-        const imageMatch = line.match(/(https:\/\/.*\.(?:png|jpg|jpeg))/i);
+        const imageMatch = line.match(/(https:\/\/.*\.(?:png|jpg|jpeg|gif))/i);
         if (imageMatch && isValidURL(imageMatch[0])) {
             result += `<div class="text-above-embed"><p>${sanitizeInput(line.replace(imageMatch[0], '').trim())}</p></div>`;
             result += `<img src="${imageMatch[0]}" alt="Embedded Image" style="max-width: 100%; height: auto;">`;
