@@ -1,9 +1,6 @@
 /* Full-screen layout */
 html, body {
-
-
     overflow: auto; /* Enable main scrollbar */
-	
 }
 
 body {
@@ -120,10 +117,24 @@ header.split {
     padding: 20px;
     border-radius: 10px;
     flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start; /* Ensure items are aligned to the left */
 }
 
 .left-side {
     overflow-y: auto; /* Ensure the left-side has its own scrollbar */
+}
+
+.right-side {
+    overflow-y: auto; /* Ensure the right-side has its own scrollbar */
+}
+
+/* Ensure both sides have the same height */
+.split-container > .left-side, .split-container > .right-side {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
 }
 
 .columns {
@@ -139,7 +150,7 @@ header.split {
     padding: 15px;
     border-radius: 10px;
     overflow-y: auto; /* Ensure each column has its own scrollbar */
-    max-height: calc(100vh - 40px); /* Adjust to ensure it fits within the viewport */
+    max-height: calc(147vh - 47px); /* Adjust to ensure it fits within the viewport */
     transition: transform 0.3s ease, box-shadow 0.3s ease; /* Smooth transition for the transform and box-shadow */
     position: relative;
 }
@@ -414,7 +425,7 @@ body {
     font-family: Arial, sans-serif;
     margin: 0;
     padding: 0;
-	zoom: 88%;
+    zoom: 88%;
 }
 
 .container {
@@ -514,14 +525,18 @@ header {
 /* Shake and glow effect */
 .shake-glow {
     animation: shake 0.4s, glow 0.4s;
-}header {
+}
+
+header {
     margin-bottom: 20px;
     width: 100%;
     text-align: center;
     padding: 20px 0; /* Add padding to ensure the header is fully visible */
     background: rgba(0, 0, 0, 0.8);
     border-radius: 10px;
-}.fullscreen-btn {
+}
+
+.fullscreen-btn {
     background: none;
     border: none;
     color: #4CAF50;
@@ -536,7 +551,6 @@ header {
     display: flex;
     align-items: center;
     gap: 5px;
-
     top: 10px;
     right: 10px;
 }
@@ -544,6 +558,7 @@ header {
 .fullscreen-btn:hover {
     background-color: #0056b3;
 }
+
 .fullscreen-post {
     float: right; /* Align to right */
     border: 2px solid #2e2e2e; /* Add border for better design */

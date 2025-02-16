@@ -28,7 +28,7 @@ function renderPosts() {
 
 function lazyLoadPosts(posts, container) {
     let loadedPosts = 0;
-    const postsPerLoad = 2;
+    const postsPerLoad = 4;
 
     function loadMorePosts() {
         const end = loadedPosts + postsPerLoad;

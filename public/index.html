@@ -2,11 +2,140 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-	<meta name="csrf-token" content="{{csrfToken}}">
+    <meta name="csrf-token" content="{{csrfToken}}">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MEGA PEPE</title>
+    <title>Marvin The Martian wif His Dog</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="style.css">
+    <style>
+        body {
+            font-size: 18px; /* Increase base font size */
+        }
+
+        h1, h2, h3, h4, h5, h6 {
+            font-size: 1.5em; /* Make headings larger */
+        }
+
+        .separator {
+            border-bottom: 2px solid #ccc;
+            margin: 20px 0;
+        }
+
+        .image-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+        }
+        
+        .image-container img {
+            max-width: 49%;
+            height: auto;
+        }
+
+        .left-side {
+            padding: 20px; /* Add padding */
+            border-radius: 8px; /* Add rounded corners */
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Add shadow */
+            font-size: 1.2em; /* Increase font size */
+            line-height: 1.6; /* Improve readability */
+        }
+
+        .left-side h2 {
+            color: #2e2ef3; /* Darker color for headings */
+            font-weight: bold; /* Make headings bold */
+        }
+
+        .left-side p {
+            margin-bottom: 15px; /* Add spacing between paragraphs */
+        }
+
+        .left-side img {
+            border-radius: 8px; /* Add rounded corners to images */
+        }
+
+        .contract-address {
+            border: 2px solid #2e2ef3;
+            padding: 10px;
+            border-radius: 8px;
+            display: inline-block;
+            font-weight: bold;
+        }
+
+        .copy-button {
+            background-color: #2e2ef3;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-left: 10px;
+        }
+
+        .copy-button:hover {
+            background-color: #1e1eb3;
+        }
+
+        .slideshow-container {
+            position: relative;
+            max-width: 100%;
+            margin: auto;
+	
+        }
+
+        .mySlides {
+            display: none;
+        }
+
+        .prev, .next {
+            cursor: pointer;
+            position: absolute;
+            top: 50%;
+            width: auto;
+            padding: 16px;
+            margin-top: -22px;
+            color: white;
+            font-weight: bold;
+            font-size: 18px;
+            transition: 0.6s ease;
+            border-radius: 0 3px 3px 0;
+            user-select: none;
+        }
+
+        .next {
+            right: 0;
+            border-radius: 3px 0 0 3px;
+        }
+
+        .prev:hover, .next:hover {
+            background-color: rgba(0,0,0,0.8);
+        }
+
+        .dot {
+            cursor: pointer;
+            height: 15px;
+            width: 15px;
+            margin: 0 2px;
+            background-color: #bbb;
+            border-radius: 50%;
+            display: inline-block;
+            transition: background-color 0.6s ease;
+        }
+
+        .active, .dot:hover {
+            background-color: #717171;
+        }
+
+        .fade {
+            animation-name: fade;
+            animation-duration: 1.5s;
+        }
+
+        @keyframes fade {
+            from {opacity: .4} 
+            to {opacity: 1}
+        }
+    </style>
 </head>
 <body>
     <div class="container">
@@ -21,16 +150,88 @@
                 <input type="text" id="searchInput" placeholder="Search posts...">
                 <button id="searchButton">Search</button>
             </form>
-            <h1>MEGA PEPE</h1>
+            <h1>                <h2>Marvin the Martian wif His Dog</h2>
+                <div class="contract-address" id="contractAddress">Contract Address: FddUq36DRuqDMyxxyLy4CxcU9evrsBCdKLtoAPHKpump</div>
+                <button class="copy-button" onclick="copyAddress()">Copy Address</button></h1>
         </header>
 
         <button id="toggleButton"><i class="fas fa-window-minimize"></i><i class="fas fa-window-restore"></i></button>
 
         <div class="split-container" id="splitContainer">
+		  
             <div class="left-side" id="leftSide">
-                <h2>CONTENTCONTENTCONTENTCONTENTCONTENTCONTENTCONTENT<BR>CACACAHERE</h2>
+
+              <center>
+                <div style="text-align:center">
+                    <span class="dot" onclick="currentSlide(1)"></span> 
+                    <span class="dot" onclick="currentSlide(2)"></span> 
+                    <span class="dot" onclick="currentSlide(3)"></span> 
+                    <span class="dot" onclick="currentSlide(4)"></span> 
+                    <span class="dot" onclick="currentSlide(5)"></span> 
+                    <span class="dot" onclick="currentSlide(6)"></span> 
+                    <span class="dot" onclick="currentSlide(7)"></span> 
+                    <span class="dot" onclick="currentSlide(8)"></span> 
+                    <span class="dot" onclick="currentSlide(9)"></span> 
+                    <span class="dot" onclick="currentSlide(10)"></span> 
+                </div>
+<center>
+                       <div class="slideshow-container">
+                    <div class="mySlides fade">
+                        <img src="2gif.gif" style="width:100%">
+                    </div>
+                    <div class="mySlides fade">
+                        <img src="marvinwifdog.jpg" style="width:100%">
+                    </div>
+                    <div class="mySlides fade">
+                        <img src="1gif.gif" style="width:100%">
+                    </div>
+                    <div class="mySlides fade">
+                        <img src="7.jpg" style="width:100%">
+                    </div>
+                    <div class="mySlides fade">
+                        <img src="5.jpg" style="width:100%">
+                    </div>
+                    <div class="mySlides fade">
+                        <img src="6.jpg" style="width:100%">
+                    </div>
+                    <div class="mySlides fade">
+                        <img src="7.jpg" style="width:100%">
+                    </div>
+                    <div class="mySlides fade">
+                        <img src="9.jpg" style="width:100%">
+                    </div>
+                    <div class="mySlides fade">
+                        <img src="10.webp" style="width:100%">
+                    </div>
+                    <div class="mySlides fade">
+                        <img src="marvin.jpg" style="width:100%">
+                    </div>
+
+            
+                </div>
+                <br>
+
+
+                <div class="contract-address" id="contractAddress">Contract Address: FddUq36DRuqDMyxxyLy4CxcU9evrsBCdKLtoAPHKpump</div>
+                <button class="copy-button" onclick="copyAddress()">Copy Address</button>
+                <div class="separator"></div>
+                
+                <p>About Marvin the Martian wif His Dog</p>
+                <p>Marvin the Martian, a classic Looney Tunes character, is known for his futuristic Roman-inspired helmet and soft-spoken yet determined personality. Often seen scheming to destroy Earth with his advanced weaponry.</p>
+                <p>Marvin embodies a mix of intelligence, persistence, and comedic frustration. His loyal dog, K-9, serves as both a companion and enforcer, adding charm to Marvin's intergalactic antics.</p>
+                <p>Marvin and K-9’s dynamic showcases a humorous contrast—Marvin’s small stature and grand ambitions paired with K-9’s dutiful but sometimes clueless loyalty. The duo is often depicted in humorous scenarios where their plans are thwarted, reinforcing Marvin’s status as a lovable underdog in the world of classic cartoons.</p>
+                <p>Marvin the Martian isn’t just big—he’s in a league of his own. In a world full of ordinary characters, he’s the apex. 🛸🐶</p>
+                <p>Smol? Never heard of it. Marvin moves fast, thinks big, and leaves no room for anything less than legendary. No distractions, no competition—just an endless pursuit of more.</p>
+                <p>🚀 Join the movement and level up with Marvin the Martian and K-9. The only way is UP.</p>
+                <p>Disclaimer: Buying this token is not an investment and is intended only for entertainment purposes.</p>
+                <div class="separator"></div>
+                <br>
+
+   
             </div>
             <div class="right-side" id="rightSide">
+		
+			       <div class="separator"></div>
                 <div class="columns" id="postsContainer">
                     <div class="column">
                         <h2>Newest Posts</h2>
@@ -49,23 +250,34 @@
                     <h2>Search Results</h2>
                     <div id="searchResultsContainer"></div>
                 </div>
+				<br><br><br><br><br>
+				       <div class="separator"></div>
             </div>
         </div>
 
         <div id="fullscreenPostContainer" style="display: none;">
             <div id="fullscreenPostContent"></div>
         </div>
+		        <header id="header">
+
+            <h1>                <h2>Marvin the Martian wif His Dog</h2>
+                <div class="contract-address" id="contractAddress">Contract Address: FddUq36DRuqDMyxxyLy4CxcU9evrsBCdKLtoAPHKpump</div>
+                <button class="copy-button" onclick="copyAddress()">Copy Address</button></h1>
+				<br>
+				   <p>🚀 Join the movement and level up with Marvin the Martian and K-9. The only way is UP.</p>
+                <p>Disclaimer: Buying this token is not an investment and is intended only for entertainment purposes.</p>
+          
+        </header>
     </div>
     <script src="/socket.io/socket.io.js"></script>
-    <script src="utils.js"></script>
-    <script src="comments.js"></script>
-    <script src="fetch.js"></script>
-	
-    <script src="renderPostColumn.js"></script>
-    <script src="renderPosts.js"></script>
-    <script src="postActions.js"></script>
-    <script src="search.js"></script>
-    <script src="main.js"></script>
+    <script src="/utils.js"></script> <!-- Add leading slash -->
+    <script src="/comments.js"></script> <!-- Add leading slash -->
+    <script src="/fetch.js"></script> <!-- Add leading slash -->
+    <script src="/renderPostColumn.js"></script> <!-- Add leading slash -->
+    <script src="/renderPosts.js"></script> <!-- Add leading slash -->
+    <script src="/postActions.js"></script> <!-- Add leading slash -->
+    <script src="/search.js"></script> <!-- Add leading slash -->
+    <script src="/main.js"></script> <!-- Add leading slash -->
     <script>
         async function generateToken() {
             const response = await fetch('/generate-token', {
@@ -111,7 +323,54 @@
 
         document.addEventListener('DOMContentLoaded', () => {
             generateToken(); // Generate the token when the page loads
+            showSlides(slideIndex);
+            setInterval(randomSlide, 4700); // Change slide every 4.7 seconds
         });
+
+        function copyAddress() {
+            const address = document.getElementById('contractAddress').innerText.split(': ')[1];
+            navigator.clipboard.writeText(address).then(() => {
+                alert('Contract address copied to clipboard!');
+            }).catch(err => {
+                console.error('Failed to copy: ', err);
+            });
+        }
+
+        let slideIndex = 1;
+
+        function plusSlides(n) {
+            showSlides(slideIndex += n);
+        }
+
+        function currentSlide(n) {
+            showSlides(slideIndex = n);
+        }
+
+        function showSlides(n) {
+            let i;
+            let slides = document.getElementsByClassName("mySlides");
+            let dots = document.getElementsByClassName("dot");
+
+            if (n > slides.length) {slideIndex = 1}    
+            if (n < 1) {slideIndex = slides.length}
+
+            for (i = 0; i < slides.length; i++) {
+                slides[i].style.display = "none";  
+            }
+
+            for (i = 0; i < dots.length; i++) {
+                dots[i].className = dots[i].className.replace(" active", "");
+            }
+
+            slides[slideIndex-1].style.display = "block";  
+            dots[slideIndex-1].className += " active";
+        }
+
+        function randomSlide() {
+            let slides = document.getElementsByClassName("mySlides");
+            let randomIndex = Math.floor(Math.random() * slides.length);
+            showSlides(slideIndex = randomIndex + 1);
+        }
     </script>
 </body>
 </html>

@@ -106,6 +106,124 @@ async function searchPosts(query) {
         console.error('Error fetching posts:', error);
     }
 }
+// Function to render a post in fullscreen mode
+function renderPostInFullscreen(postId) {
+    const splitContainer = document.getElementById('splitContainer');
+    const fullscreenPostContainer = document.getElementById('fullscreenPostContainer');
+    const fullscreenPostContent = document.getElementById('fullscreenPostContent');
+
+    // Hide all previously rendered posts
+    document.querySelectorAll('.post').forEach(post => post.remove());
+
+    // Hide split container
+    splitContainer.style.display = 'none';
+
+    // Show fullscreen post container
+    fullscreenPostContainer.style.display = 'block';
+
+    // Clear previous content
+    fullscreenPostContent.innerHTML = '';
+if (document.getElementById(`post-${postId}`)) {
+    console.log('Post is already rendered');
+    return;
+}
+    // Fetch the post data
+    fetch(`/posts/${postId}`)
+        .then(response => response.json())
+        .then(post => {
+            const div = document.createElement('div');
+            div.className = 'post fullscreen-post';
+            div.id = `post-${post.id}`;
+
+            let content = `
+                <button class="fullscreen-btn" data-id="${sanitizeInput(post.id.toString())}" style="background-color: lightblue; padding: 5px; border: none; border-radius: 5px; cursor: pointer; top: 5px; right: 5px;">⛶</button>
+                <hr class="post-separator">
+                <h3 class="post-title">${sanitizeHTML(post.title)}</h3>
+                <div class="post-content">
+                    ${convertLinksToEmbeds(sanitizeHTML(post.content))}
+            `;
+
+            // Process links for Twitter (X) embeds
+            const links = post.content.match(/https?:\/\/[^\s]+/g) || [];
+            links.forEach(link => {
+                if (link.includes('x.com') || link.includes('twitter.com')) {
+                    const tweetIdMatch = link.match(/(?:https?:\/\/)?(?:www\.)?(?:twitter\.com|x\.com)\/[\w-]+\/status\/(\d+)(?:\/|$|\?|#)/);
+                    if (tweetIdMatch) {
+                        const tweetId = tweetIdMatch[1]; // Extract tweet ID
+                        // Replace x.com with twitter.com for proper widget functionality
+                        const tweetLink = link.replace('x.com', 'twitter.com');
+                        content += `
+                            <blockquote class="twitter-tweet" data-dnt="true" data-theme="dark">
+                                <a href="${tweetLink}"></a>
+                            </blockquote>
+                        `;
+                    }
+                }
+            });
+
+            content += `
+                </div>
+                <hr class="post-separator">
+                <div class="post-footer">
+                    <p class="post-date">${new Date(post.date).toLocaleString()}</p>
+                    <p class="post-likes-footer">Likes: <span class="likes-count">${sanitizeInput(post.likes.toString())}</span></p>
+                </div>
+                <div class="post-actions">
+                    <button class="like-btn" data-id="${sanitizeInput(post.id.toString())}"><i class="fas fa-thumbs-up"></i> Like</button>
+                    <button class="reply-btn" data-id="${sanitizeInput(post.id.toString())}" data-column-id="fullscreenPostContent"><i class="fas fa-reply"></i> Reply</button><br>
+                    <button class="share-btn" data-id="${sanitizeInput(post.id.toString())}" data-column-id="fullscreenPostContent"><i class="fas fa-share"></i> Share on X</button>
+                    <button class="toggle-comments-btn" data-id="${sanitizeInput(post.id.toString())}" data-container-id="fullscreenPostContent"><i class="fas fa-comments"></i> Hide/Show Comments</button>
+                    <button class="delete-btn" data-id="${sanitizeInput(post.id.toString())}" style="background: none; border: none; color: red; font-size: 10px; cursor: pointer;">x</button>
+                </div>
+                <hr class="comment-separator">
+                <div class="comments" id="comments-${sanitizeInput(post.id.toString())}-fullscreenPostContent" style="max-height: 300px; overflow-y: auto;">
+                    ${renderCommentsHTML(post.comments)}
+                </div>
+                <hr class="comment-end-separator">
+            `;
+
+            div.innerHTML = content;
+            fullscreenPostContent.appendChild(div);
+
+            const deleteBtn = div.querySelector('.delete-btn');
+            if (deleteBtn) {
+                deleteBtn.addEventListener('click', () => deletePost(post.id));
+            }
+
+            const fullscreenBtn = div.querySelector('.fullscreen-btn');
+            if (fullscreenBtn) {
+                fullscreenBtn.addEventListener('click', () => showPostInFullscreen(post.id));
+            }
+
+            const likeBtn = div.querySelector('.like-btn');
+            if (likeBtn) {
+                likeBtn.addEventListener('click', () => handleLike(post.id, 'fullscreenPostContent'));
+            }
+
+            const replyBtn = div.querySelector('.reply-btn');
+            if (replyBtn) {
+                replyBtn.addEventListener('click', () => handleReply(post.id, 'fullscreenPostContent'));
+            }
+
+            const toggleCommentsBtn = div.querySelector('.toggle-comments-btn');
+            if (toggleCommentsBtn) {
+                toggleCommentsBtn.addEventListener('click', () => handleToggleComments(post.id));
+            }
+
+            // Apply the shake and glow effect
+            div.classList.add('shake-glow');
+            setTimeout(() => {
+                div.style.transition = 'opacity 0.5s';
+                div.style.opacity = '1';
+            }, 10);
+
+            // Remove the effect after 1 second
+            setTimeout(() => {
+                div.classList.remove('shake-glow');
+            }, 1470);
+        })
+        .catch(error => console.error('Error fetching post:', error));
+}
 function renderSearchResults(posts) {
     const postsContainer = document.getElementById('postsContainer');
     const searchResults = document.getElementById('searchResults');
@@ -347,124 +465,7 @@ async function showPostInFullscreen(postId) {
     }
 }
 
-// Function to render a post in fullscreen mode
-function renderPostInFullscreen(postId) {
-    const splitContainer = document.getElementById('splitContainer');
-    const fullscreenPostContainer = document.getElementById('fullscreenPostContainer');
-    const fullscreenPostContent = document.getElementById('fullscreenPostContent');
 
-    // Hide all previously rendered posts
-    document.querySelectorAll('.post').forEach(post => post.remove());
-
-    // Hide split container
-    splitContainer.style.display = 'none';
-
-    // Show fullscreen post container
-    fullscreenPostContainer.style.display = 'block';
-
-    // Clear previous content
-    fullscreenPostContent.innerHTML = '';
-if (document.getElementById(`post-${postId}`)) {
-    console.log('Post is already rendered');
-    return;
-}
-    // Fetch the post data
-    fetch(`/posts/${postId}`)
-        .then(response => response.json())
-        .then(post => {
-            const div = document.createElement('div');
-            div.className = 'post fullscreen-post';
-            div.id = `post-${post.id}`;
-
-            let content = `
-                <button class="fullscreen-btn" data-id="${sanitizeInput(post.id.toString())}" style="background-color: lightblue; padding: 5px; border: none; border-radius: 5px; cursor: pointer; top: 5px; right: 5px;">⛶</button>
-                <hr class="post-separator">
-                <h3 class="post-title">${sanitizeHTML(post.title)}</h3>
-                <div class="post-content">
-                    ${convertLinksToEmbeds(sanitizeHTML(post.content))}
-            `;
-
-            // Process links for Twitter (X) embeds
-            const links = post.content.match(/https?:\/\/[^\s]+/g) || [];
-            links.forEach(link => {
-                if (link.includes('x.com') || link.includes('twitter.com')) {
-                    const tweetIdMatch = link.match(/(?:https?:\/\/)?(?:www\.)?(?:twitter\.com|x\.com)\/[\w-]+\/status\/(\d+)(?:\/|$|\?|#)/);
-                    if (tweetIdMatch) {
-                        const tweetId = tweetIdMatch[1]; // Extract tweet ID
-                        // Replace x.com with twitter.com for proper widget functionality
-                        const tweetLink = link.replace('x.com', 'twitter.com');
-                        content += `
-                            <blockquote class="twitter-tweet" data-dnt="true" data-theme="dark">
-                                <a href="${tweetLink}"></a>
-                            </blockquote>
-                        `;
-                    }
-                }
-            });
-
-            content += `
-                </div>
-                <hr class="post-separator">
-                <div class="post-footer">
-                    <p class="post-date">${new Date(post.date).toLocaleString()}</p>
-                    <p class="post-likes-footer">Likes: <span class="likes-count">${sanitizeInput(post.likes.toString())}</span></p>
-                </div>
-                <div class="post-actions">
-                    <button class="like-btn" data-id="${sanitizeInput(post.id.toString())}"><i class="fas fa-thumbs-up"></i> Like</button>
-                    <button class="reply-btn" data-id="${sanitizeInput(post.id.toString())}" data-column-id="fullscreenPostContent"><i class="fas fa-reply"></i> Reply</button><br>
-                    <button class="share-btn" data-id="${sanitizeInput(post.id.toString())}" data-column-id="fullscreenPostContent"><i class="fas fa-share"></i> Share on X</button>
-                    <button class="toggle-comments-btn" data-id="${sanitizeInput(post.id.toString())}" data-container-id="fullscreenPostContent"><i class="fas fa-comments"></i> Hide/Show Comments</button>
-                    <button class="delete-btn" data-id="${sanitizeInput(post.id.toString())}" style="background: none; border: none; color: red; font-size: 10px; cursor: pointer;">x</button>
-                </div>
-                <hr class="comment-separator">
-                <div class="comments" id="comments-${sanitizeInput(post.id.toString())}-fullscreenPostContent" style="max-height: 300px; overflow-y: auto;">
-                    ${renderCommentsHTML(post.comments)}
-                </div>
-                <hr class="comment-end-separator">
-            `;
-
-            div.innerHTML = content;
-            fullscreenPostContent.appendChild(div);
-
-            const deleteBtn = div.querySelector('.delete-btn');
-            if (deleteBtn) {
-                deleteBtn.addEventListener('click', () => deletePost(post.id));
-            }
-
-            const fullscreenBtn = div.querySelector('.fullscreen-btn');
-            if (fullscreenBtn) {
-                fullscreenBtn.addEventListener('click', () => showPostInFullscreen(post.id));
-            }
-
-            const likeBtn = div.querySelector('.like-btn');
-            if (likeBtn) {
-                likeBtn.addEventListener('click', () => handleLike(post.id, 'fullscreenPostContent'));
-            }
-
-            const replyBtn = div.querySelector('.reply-btn');
-            if (replyBtn) {
-                replyBtn.addEventListener('click', () => handleReply(post.id, 'fullscreenPostContent'));
-            }
-
-            const toggleCommentsBtn = div.querySelector('.toggle-comments-btn');
-            if (toggleCommentsBtn) {
-                toggleCommentsBtn.addEventListener('click', () => handleToggleComments(post.id));
-            }
-
-            // Apply the shake and glow effect
-            div.classList.add('shake-glow');
-            setTimeout(() => {
-                div.style.transition = 'opacity 0.5s';
-                div.style.opacity = '1';
-            }, 10);
-
-            // Remove the effect after 1 second
-            setTimeout(() => {
-                div.classList.remove('shake-glow');
-            }, 1470);
-        })
-        .catch(error => console.error('Error fetching post:', error));
-}
 
 async function searchPosts(query) {
     try {
