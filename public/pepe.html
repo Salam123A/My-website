@@ -57,15 +57,16 @@
         </div>
     </div>
     <script src="/socket.io/socket.io.js"></script>
-    <script src="utils.js"></script>
-    <script src="comments.js"></script>
-    <script src="fetch.js"></script>
-	
-    <script src="renderPostColumn.js"></script>
-    <script src="renderPosts.js"></script>
-    <script src="postActions.js"></script>
-    <script src="search.js"></script>
-    <script src="main.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="/utils.js"></script> <!-- Add leading slash -->
+    <script src="/comments.js"></script> <!-- Add leading slash -->
+    <script src="/fetch.js"></script> <!-- Add leading slash -->
+    <script src="/renderPostColumn.js"></script> <!-- Add leading slash -->
+    <script src="/renderPosts.js"></script> <!-- Add leading slash -->
+    <script src="/postActions.js"></script> <!-- Add leading slash -->
+    <script src="/search.js"></script> <!-- Add leading slash -->
+    <script src="/main.js"></script> <!-- Add leading slash -->
+    <script>
     <script>
         async function generateToken() {
             const response = await fetch('/generate-token', {
