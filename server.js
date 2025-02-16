@@ -15,7 +15,7 @@ const app = express();
 const server = http.createServer(app);
 const io = socketIo(server);
 const PORT = process.env.PORT || 3000;
-const BLOB_NAME = process.env.BLOB_NAME || 'posts.json';
+const BLOB_NAME = process.env.DATA_FILE || 'posts.json';
 
 // Middleware
 app.use(mongoSanitize());
@@ -303,10 +303,4 @@ io.on('connection', (socket) => {
 // Start the server
 server.listen(PORT, '0.0.0.0', () => {
   console.log(`✅ Server running on http://localhost:${PORT}`);
-});
-
-// Test route to check mongo-sanitize
-app.post('/test-sanitize', (req, res) => {
-  console.log('Original input:', req.body);
-  res.json({ sanitizedInput: req.body });
 });
