@@ -1,3 +1,4 @@
+require('dotenv').config();
 const express = require('express');
 const fs = require('fs');
 const path = require('path');
@@ -7,15 +8,11 @@ const expressSanitizer = require('express-sanitizer');
 const { body, validationResult } = require('express-validator');
 const validator = require('validator');
 const http = require('http');
-const https = require('https');
 const socketIo = require('socket.io');
 const mongoSanitize = require('express-mongo-sanitize');
 
 const app = express();
-const server = https.createServer({
-  key: fs.readFileSync(path.join(__dirname, 'certs', 'key.pem')),
-  cert: fs.readFileSync(path.join(__dirname, 'certs', 'cert.pem'))
-}, app);
+const server = http.createServer(app);
 const io = socketIo(server);
 const PORT = process.env.PORT || 3000;
 const DATA_FILE = path.join(__dirname, process.env.DATA_FILE || 'posts.json');
@@ -26,18 +23,15 @@ app.use(express.json());
 app.use(expressSanitizer());
 app.use(cors());
 
-// Disable X-Powered-By header
-app.disable('x-powered-by');
-
-// Trust the first proxy in the chain (Cloudflare)
-app.set('trust proxy', 1);
-
 // Rate limiting to prevent DDoS attacks
 const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
+  windowMs: 5 * 60 * 1000, // 15 minutes
   max: 100, // limit each IP to 100 requests per windowMs
 });
 app.use(limiter);
+
+// Serve static files from /public
+app.use(express.static(path.join(__dirname, 'public')));
 
 // Ensure posts.json exists
 function ensureFileExists() {
@@ -261,9 +255,6 @@ app.delete('/posts/:id', (req, res) => {
   res.json({ message: 'Post deleted' });
 });
 
-// Serve static files (e.g., CSS, JS, images)
-app.use(express.static('public'));
-
 // Socket.IO connection handler
 io.on('connection', (socket) => {
   console.log('New client connected');
@@ -274,7 +265,7 @@ io.on('connection', (socket) => {
 
 // Start the server
 server.listen(PORT, '0.0.0.0', () => {
-  console.log(`✅ Server running on https://localhost:${PORT}`);
+  console.log(`✅ Server running on http://localhost:${PORT}`);
 });
 
 // Test route to check mongo-sanitize
