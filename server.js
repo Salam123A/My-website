@@ -15,7 +15,7 @@ const app = express();
 const server = http.createServer(app);
 const io = socketIo(server);
 const PORT = process.env.PORT || 3000;
-const BLOB_NAME = 'posts.json';
+const BLOB_NAME = process.env.BLOB_NAME || 'posts.json';
 
 // Middleware
 app.use(mongoSanitize());
@@ -36,10 +36,10 @@ app.use(express.static(path.join(__dirname, 'public')));
 // Ensure posts.json exists in Blob Storage
 async function ensureBlobExists() {
   try {
-    await get(BLOB_NAME);
+    await get(BLOB_NAME, { token: process.env.BLOB_READ_WRITE_TOKEN });
   } catch (error) {
     if (error.status === 404) {
-      await put(BLOB_NAME, JSON.stringify([]), { access: 'public' });
+      await put(BLOB_NAME, JSON.stringify([]), { access: 'public', token: process.env.BLOB_READ_WRITE_TOKEN });
     } else {
       throw error;
     }
@@ -49,13 +49,16 @@ async function ensureBlobExists() {
 // Read posts from Blob Storage
 async function readPosts() {
   await ensureBlobExists();
-  const response = await get(BLOB_NAME);
-  return JSON.parse(await response.text());
+  const response = await get(BLOB_NAME, { token: process.env.BLOB_READ_WRITE_TOKEN });
+  const posts = JSON.parse(await response.text());
+  console.log('Read posts:', posts); // Debugging output
+  return posts;
 }
 
 // Write posts to Blob Storage
 async function writePosts(posts) {
-  await put(BLOB_NAME, JSON.stringify(posts, null, 2), { access: 'public' });
+  await put(BLOB_NAME, JSON.stringify(posts, null, 2), { access: 'public', token: process.env.BLOB_READ_WRITE_TOKEN });
+  console.log('Written posts:', posts); // Debugging output
 }
 
 // Serve pepe.html as homepage
@@ -72,7 +75,13 @@ app.get('/pepeexpand/:id', (req, res) => {
 // Get all posts
 app.get('/posts', async (req, res) => {
   console.log('GET /posts');
-  res.json(await readPosts());
+  try {
+    const posts = await readPosts();
+    res.json(posts);
+  } catch (error) {
+    console.error('Error getting posts:', error);
+    res.status(500).json({ error: 'Failed to get posts' });
+  }
 });
 
 // Get a single post by ID
@@ -80,15 +89,20 @@ app.get('/posts/:id', async (req, res) => {
   const postId = parseInt(req.params.id, 10);
   console.log(`GET /posts/${postId}`);
 
-  const posts = await readPosts();
-  const post = posts.find((p) => p.id === postId);
+  try {
+    const posts = await readPosts();
+    const post = posts.find((p) => p.id === postId);
 
-  if (!post) {
-    console.log('Post not found:', postId);
-    return res.status(404).json({ error: 'Post not found' });
+    if (!post) {
+      console.log('Post not found:', postId);
+      return res.status(404).json({ error: 'Post not found' });
+    }
+
+    res.json(post);
+  } catch (error) {
+    console.error('Error getting post:', error);
+    res.status(500).json({ error: 'Failed to get post' });
   }
-
-  res.json(post);
 });
 
 // Create a new post
@@ -112,14 +126,19 @@ app.post(
     title = req.sanitize(title);
     content = req.sanitize(content);
 
-    const posts = await readPosts();
-    const newPost = { id: Date.now(), title, content, likes: 0, date: new Date().toISOString(), comments: [] };
-    posts.push(newPost);
-    await writePosts(posts);
+    try {
+      const posts = await readPosts();
+      const newPost = { id: Date.now(), title, content, likes: 0, date: new Date().toISOString(), comments: [] };
+      posts.push(newPost);
+      await writePosts(posts);
 
-    res.status(201).json(newPost);
+      res.status(201).json(newPost);
 
-    io.emit('updatePost', newPost); // Broadcast the new post to all clients
+      io.emit('updatePost', newPost); // Broadcast the new post to all clients
+    } catch (error) {
+      console.error('Error creating post:', error);
+      res.status(500).json({ error: 'Failed to create post' });
+    }
   }
 );
 
@@ -134,20 +153,25 @@ app.post('/posts/:id/like', async (req, res) => {
     return res.status(400).json({ error: 'Invalid post ID' });
   }
 
-  const posts = await readPosts();
-  const post = posts.find((p) => p.id === postId);
+  try {
+    const posts = await readPosts();
+    const post = posts.find((p) => p.id === postId);
 
-  if (!post) {
-    console.log('Post not found:', postId);
-    return res.status(404).json({ error: 'Post not found' });
+    if (!post) {
+      console.log('Post not found:', postId);
+      return res.status(404).json({ error: 'Post not found' });
+    }
+
+    post.likes += 1;
+    await writePosts(posts);
+
+    io.emit('updatePost', post); // Broadcast the updated post to all clients
+
+    res.json(post); // Return the updated post
+  } catch (error) {
+    console.error('Error liking post:', error);
+    res.status(500).json({ error: 'Failed to like post' });
   }
-
-  post.likes += 1;
-  await writePosts(posts);
-
-  io.emit('updatePost', post); // Broadcast the updated post to all clients
-
-  res.json(post); // Return the updated post
 });
 
 // Add a comment to a post
@@ -175,21 +199,26 @@ app.post(
       return res.status(400).json({ error: 'Invalid post ID' });
     }
 
-    const posts = await readPosts();
-    const post = posts.find((p) => p.id === postId);
+    try {
+      const posts = await readPosts();
+      const post = posts.find((p) => p.id === postId);
 
-    if (!post) {
-      console.log('Post not found:', postId);
-      return res.status(404).json({ error: 'Post not found' });
+      if (!post) {
+        console.log('Post not found:', postId);
+        return res.status(404).json({ error: 'Post not found' });
+      }
+
+      const newComment = { id: Date.now(), username, comment, date: new Date().toISOString(), likes: 0, postId: postId };
+      post.comments.push(newComment);
+      await writePosts(posts);
+
+      io.emit('updatePost', post); // Broadcast the updated post with new comment to all clients
+
+      res.status(201).json(post); // Return the updated post with new comment
+    } catch (error) {
+      console.error('Error adding comment:', error);
+      res.status(500).json({ error: 'Failed to add comment' });
     }
-
-    const newComment = { id: Date.now(), username, comment, date: new Date().toISOString(), likes: 0, postId: postId };
-    post.comments.push(newComment);
-    await writePosts(posts);
-
-    io.emit('updatePost', post); // Broadcast the updated post with new comment to all clients
-
-    res.status(201).json(post); // Return the updated post with new comment
   }
 );
 
@@ -206,26 +235,31 @@ app.post('/posts/:postId/comments/date/:commentDate/like', async (req, res) => {
     return res.status(400).json({ error: 'Invalid post ID or comment date' });
   }
 
-  const posts = await readPosts();
-  const post = posts.find((p) => p.id === postId);
+  try {
+    const posts = await readPosts();
+    const post = posts.find((p) => p.id === postId);
 
-  if (!post) {
-    console.log('Post not found:', postId);
-    return res.status(404).json({ error: 'Post not found' });
+    if (!post) {
+      console.log('Post not found:', postId);
+      return res.status(404).json({ error: 'Post not found' });
+    }
+
+    const comment = post.comments.find((c) => new Date(c.date).toISOString() === new Date(commentDate).toISOString());
+    if (!comment) {
+      console.log('Comment not found:', commentDate);
+      return res.status(404).json({ error: 'Comment not found' });
+    }
+
+    comment.likes += 1;
+    await writePosts(posts);
+
+    io.emit('updatePost', post); // Broadcast the updated post with the liked comment to all clients
+
+    res.json(post); // Return the updated post with the liked comment
+  } catch (error) {
+    console.error('Error liking comment:', error);
+    res.status(500).json({ error: 'Failed to like comment' });
   }
-
-  const comment = post.comments.find((c) => new Date(c.date).toISOString() === new Date(commentDate).toISOString());
-  if (!comment) {
-    console.log('Comment not found:', commentDate);
-    return res.status(404).json({ error: 'Comment not found' });
-  }
-
-  comment.likes += 1;
-  await writePosts(posts);
-
-  io.emit('updatePost', post); // Broadcast the updated post with the liked comment to all clients
-
-  res.json(post); // Return the updated post with the liked comment
 });
 
 // Delete a post
@@ -239,18 +273,23 @@ app.delete('/posts/:id', async (req, res) => {
     return res.status(400).json({ error: 'Invalid post ID' });
   }
 
-  const posts = await readPosts();
-  const updatedPosts = posts.filter((post) => post.id !== postId);
+  try {
+    const posts = await readPosts();
+    const updatedPosts = posts.filter((post) => post.id !== postId);
 
-  if (posts.length === updatedPosts.length) {
-    console.log('Post not found:', postId);
-    return res.status(404).json({ error: 'Post not found' });
+    if (posts.length === updatedPosts.length) {
+      console.log('Post not found:', postId);
+      return res.status(404).json({ error: 'Post not found' });
+    }
+
+    await writePosts(updatedPosts);
+    io.emit('deletePost', postId); // Broadcast the deleted post ID to all clients
+
+    res.json({ message: 'Post deleted' });
+  } catch (error) {
+    console.error('Error deleting post:', error);
+    res.status(500).json({ error: 'Failed to delete post' });
   }
-
-  await writePosts(updatedPosts);
-  io.emit('deletePost', postId); // Broadcast the deleted post ID to all clients
-
-  res.json({ message: 'Post deleted' });
 });
 
 // Socket.IO connection handler
