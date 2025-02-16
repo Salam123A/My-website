@@ -26,7 +26,7 @@ app.use(cors());
 
 // Rate limiting to prevent DDoS attacks
 const limiter = rateLimit({
-  windowMs: 5 * 60 * 1000, // 15 minutes
+  windowMs: 5 * 60 * 1000, // 5 minutes
   max: 100, // limit each IP to 100 requests per windowMs
 });
 app.use(limiter);
@@ -60,6 +60,43 @@ function writePosts(posts) {
     console.error('Error writing posts:', error);
   }
 }
+
+// Rate limit for liking a post (once every 1 minute per post)
+const likePostLimiter = rateLimit({
+  windowMs: 60 * 1000, // 1 minute
+  max: 1, // limit each IP to 1 like per windowMs per post
+  message: 'You can only like a post once every minute.',
+  keyGenerator: (req) => {
+    // Generate a unique key based on IP and the post ID
+    const postId = req.params.id;
+    return `${req.ip}:likePost:${postId}`;
+  },
+});
+
+// Rate limit for liking a comment (once every 1 minute per comment date)
+const likeCommentLimiter = rateLimit({
+  windowMs: 60 * 1000, // 1 minute
+  max: 1, // limit each IP to 1 like per windowMs per comment date
+  message: 'You can only like a comment once every minute.',
+  keyGenerator: (req) => {
+    // Generate a unique key based on IP and the comment date
+    const commentDate = req.params.commentDate;
+    return `${req.ip}:likeComment:${commentDate}`;
+  },
+});
+
+// Rate limit for posting a comment or creating a new post (once every 1 minute per post)
+const postCommentLimiter = rateLimit({
+  windowMs: 60 * 1000, // 1 minute
+  max: 1, // limit each IP to 1 post/comment per windowMs per post
+  message: 'You can only post a comment or create a new post once every minute.',
+  keyGenerator: (req) => {
+    // Generate a unique key based on IP and the action type
+    const postId = req.params.id;
+    const actionType = req.path.includes('comments') ? 'comment' : 'post';
+    return `${req.ip}:${actionType}:${postId}`;
+  },
+});
 
 // Serve pepe.html as homepage
 app.get('/', (req, res) => {
@@ -97,6 +134,7 @@ app.get('/posts/:id', (req, res) => {
 // Create a new post
 app.post(
   '/posts',
+  postCommentLimiter, // Apply rate limiting
   [
     body('title').trim().escape().notEmpty().withMessage('Title is required'),
     body('content').trim().notEmpty().withMessage('Content is required'),
@@ -127,7 +165,7 @@ app.post(
 );
 
 // Like a post
-app.post('/posts/:id/like', (req, res) => {
+app.post('/posts/:id/like', likePostLimiter, (req, res) => {
   const postId = parseInt(req.params.id, 10);
   console.log(`POST /posts/${postId}/like`);
 
@@ -156,6 +194,7 @@ app.post('/posts/:id/like', (req, res) => {
 // Add a comment to a post
 app.post(
   '/posts/:id/comments',
+  postCommentLimiter, // Apply rate limiting
   [
     body('username').trim().notEmpty().withMessage('Username is required'),
     body('comment').trim().notEmpty().withMessage('Comment is required'),
@@ -197,7 +236,7 @@ app.post(
 );
 
 // Like a comment
-app.post('/posts/:postId/comments/date/:commentDate/like', (req, res) => {
+app.post('/posts/:postId/comments/date/:commentDate/like', likeCommentLimiter, (req, res) => {
   const postId = parseInt(req.params.postId, 10);
   const commentDate = req.params.commentDate;
   console.log(`POST /posts/${postId}/comments/date/${commentDate}/like`);
