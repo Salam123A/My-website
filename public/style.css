@@ -571,3 +571,14 @@ header {
 .fullscreen-post .post-separator {
     border-top: 1px solid #007BFF; /* Add border color for better design */
 }
+
+/* Media query for small screens */
+@media (max-width: 768px) {
+    .split-container {
+        flex-direction: column;
+    }
+
+    .left-side, .right-side {
+        width: 100%;
+    }
+}
